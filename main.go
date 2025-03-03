@@ -10,8 +10,8 @@ import (
 )
 
 type FileData struct {
-	FileName string
-	URLs     []string
+	Name string
+	URLs []string
 }
 
 func read(filePath string) ([][]string, error) {
@@ -59,8 +59,8 @@ func parse(records [][]string) []FileData {
 		urls := strings.Split(mr, " ")
 
 		fileData := FileData{
-			FileName: fileName,
-			URLs:     urls,
+			Name: fileName,
+			URLs: urls,
 		}
 		result = append(result, fileData)
 	}
@@ -70,16 +70,16 @@ func parse(records [][]string) []FileData {
 
 func save(path string, files []FileData) error {
 	for _, file := range files {
-		filePath := filepath.Join(path, file.FileName)
+		filePath := filepath.Join(path, file.Name)
 		f, err := os.Create(filePath)
 		if err != nil {
-			return fmt.Errorf("failed to create file %s: %w", file.FileName, err)
+			return fmt.Errorf("failed to create file %s: %w", file.Name, err)
 		}
 
 		content := strings.Join(file.URLs, "\n")
 		if _, err := f.WriteString(content); err != nil {
 			f.Close()
-			return fmt.Errorf("failed to write to file %s: %w", file.FileName, err)
+			return fmt.Errorf("failed to write to file %s: %w", file.Name, err)
 		}
 
 		f.Close()
