@@ -31,6 +31,18 @@ func read(filePath string) ([][]string, error) {
 	return records, nil
 }
 
+func findColumnIdx(headers []string, name string) (int, error) {
+	name = strings.ToLower(strings.TrimSpace(name))
+
+	for i, header := range headers {
+		if strings.ToLower(strings.TrimSpace(header)) == name {
+			return i, nil
+		}
+	}
+
+	return -1, fmt.Errorf("column '%s' not found in CSV", name)
+}
+
 func containsURL(line string) bool {
 	urlRegex := regexp.MustCompile(`https?://[^\s]+`)
 	return urlRegex.MatchString(line)
@@ -44,14 +56,34 @@ func convertToFilename(title string) string {
 	return result
 }
 
-func parse(records [][]string) []FileData {
+func parse(records [][]string) ([]FileData, error) {
 	result := []FileData{}
 
-	for _, record := range records {
-		title := record[5]
-		mr := record[7]
+	if len(records) < 1 {
+		return result, nil
+	}
 
-		if len(record) < 10 || title == "" || mr == "" || !containsURL(mr) {
+	titleIdx, err := findColumnIdx(records[0], "title")
+	if err != nil {
+		return nil, err
+	}
+
+	mrIdx, err := findColumnIdx(records[0], "mr")
+	if err != nil {
+		return nil, err
+	}
+
+	for i := 1; i < len(records); i++ {
+		record := records[i]
+
+		if len(record) <= titleIdx || len(record) <= mrIdx {
+			continue
+		}
+
+		title := record[titleIdx]
+		mr := record[mrIdx]
+
+		if title == "" || mr == "" || !containsURL(mr) {
 			continue
 		}
 
@@ -65,7 +97,7 @@ func parse(records [][]string) []FileData {
 		result = append(result, fileData)
 	}
 
-	return result
+	return result, nil
 }
 
 func save(path string, files []FileData) error {
@@ -105,7 +137,11 @@ func main() {
 	}
 	fmt.Printf("Successfully read %d lines\n", len(records))
 
-	fileData := parse(records)
+	fileData, err := parse(records)
+	if err != nil {
+		fmt.Printf("Error parsing CSV: %v\n", err)
+		os.Exit(1)
+	}
 	fmt.Printf("Found %d records with mrs\n", len(fileData))
 
 	folderPath := filepath.Dir(csvFilePath)
@@ -113,5 +149,5 @@ func main() {
 		fmt.Printf("Error saving files: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Println("Successfully saved to txt files")
+	fmt.Println("Successfully saved files")
 }
