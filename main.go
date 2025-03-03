@@ -14,7 +14,7 @@ type FileData struct {
 	URLs     []string
 }
 
-func Read(filePath string) ([][]string, error) {
+func read(filePath string) ([][]string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
@@ -44,7 +44,7 @@ func convertToFilename(title string) string {
 	return result
 }
 
-func Parse(records [][]string) []FileData {
+func parse(records [][]string) []FileData {
 	result := []FileData{}
 
 	for _, record := range records {
@@ -68,7 +68,7 @@ func Parse(records [][]string) []FileData {
 	return result
 }
 
-func Save(path string, files []FileData) error {
+func save(path string, files []FileData) error {
 	for _, file := range files {
 		filePath := filepath.Join(path, file.FileName)
 		f, err := os.Create(filePath)
@@ -98,18 +98,18 @@ func main() {
 	csvFilePath := os.Args[1]
 	fmt.Printf("Processing: %s\n", csvFilePath)
 
-	records, err := Read(csvFilePath)
+	records, err := read(csvFilePath)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("Successfully read %d lines\n", len(records))
 
-	fileData := Parse(records)
+	fileData := parse(records)
 	fmt.Printf("Found %d records with mrs\n", len(fileData))
 
 	folderPath := filepath.Dir(csvFilePath)
-	if err := Save(folderPath, fileData); err != nil {
+	if err := save(folderPath, fileData); err != nil {
 		fmt.Printf("Error saving files: %v\n", err)
 		os.Exit(1)
 	}
