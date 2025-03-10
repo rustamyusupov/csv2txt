@@ -49,7 +49,7 @@ func findColumnIdx(headers []string, name string) (int, error) {
 		}
 	}
 
-	return -1, fmt.Errorf("column '%s' not found in CSV", name)
+	return -1, fmt.Errorf("column '%s' not found", name)
 }
 
 func containsURL(line string) bool {
@@ -131,15 +131,15 @@ func save(path string, files []FileData) error {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Error: CSV file path is required")
-		fmt.Println("Usage: csv2txt [csvfile]")
+		fmt.Println("Error: xlsx file path is required")
+		fmt.Println("Usage: mrkeeper [xlsxfile]")
 		os.Exit(1)
 	}
 
-	csvFilePath := os.Args[1]
-	fmt.Printf("Processing: %s\n", csvFilePath)
+	filePath := os.Args[1]
+	fmt.Printf("Processing: %s\n", filePath)
 
-	records, err := read(csvFilePath)
+	records, err := read(filePath)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		os.Exit(1)
@@ -148,12 +148,12 @@ func main() {
 
 	fileData, err := parse(records)
 	if err != nil {
-		fmt.Printf("Error parsing CSV: %v\n", err)
+		fmt.Printf("Error parsing: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("Found %d records with mrs\n", len(fileData))
 
-	folderPath := filepath.Dir(csvFilePath)
+	folderPath := filepath.Dir(filePath)
 	if err := save(folderPath, fileData); err != nil {
 		fmt.Printf("Error saving files: %v\n", err)
 		os.Exit(1)
