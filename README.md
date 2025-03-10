@@ -1,16 +1,17 @@
-# CSV to Text Files
+# MRKeeper
 
-A simple command-line tool that converts CSV data into separate text files, extracting URLs from the "mr" column and using the "title" column for filenames.
+A simple tool that extracts URLs from XLSX files and saves them into separate text files.
+
+## What it does
+
+- Reads an Excel (.xlsx) file
+- Finds "title" and "mr" columns
+- Creates text files named after each title (lowercase with hyphens)
+- Places all URLs from the "mr" column into the corresponding text file
+- Saves files in the same directory as the input file
 
 ## Usage
 
 ```bash
-csv2txt [csvfile]
+mrkeeper path/to/file.xlsx
 ```
-
-## Features
-
-- Processes CSV files with "title" and "mr" columns
-- Creates individual text files named after each title (converted to lowercase with hyphens)
-- Saves URLs as line-separated content in the text files
-- Places output files in the same directory as the input CSV
