@@ -1,4 +1,4 @@
-module github.com/rustamyusupov/csv2txt
+module github.com/rustamyusupov/mrkeeper
 
 go 1.22.5
 
