@@ -1,12 +1,13 @@
 package main
 
 import (
-	"encoding/csv"
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/xuri/excelize/v2"
 )
 
 type FileData struct {
@@ -15,20 +16,28 @@ type FileData struct {
 }
 
 func read(filePath string) ([][]string, error) {
-	file, err := os.Open(filePath)
+	f, err := excelize.OpenFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open file: %w", err)
+		return nil, fmt.Errorf("failed to open xlsx file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Printf("Warning: error closing xlsx file: %v\n", err)
+		}
+	}()
 
-	reader := csv.NewReader(file)
+	sheetName := f.GetSheetName(0)
 
-	records, err := reader.ReadAll()
+	rows, err := f.GetRows(sheetName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read CSV: %w", err)
+		return nil, fmt.Errorf("failed to read xlsx rows: %w", err)
 	}
 
-	return records, nil
+	if len(rows) == 0 {
+		return [][]string{}, nil
+	}
+
+	return rows, nil
 }
 
 func findColumnIdx(headers []string, name string) (int, error) {
